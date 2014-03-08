@@ -8,7 +8,7 @@ Inspired by the [Discreen App Rate][1] library, but with more customizations.
 # Installation
 Using gradle, just add this to your dependencies:
 
-	compile 'it.sephiroth.android.library:subtlerater:+'
+	compile 'it.sephiroth.android.library.subtlerater:library:+@aar'
 
 
 # Usage

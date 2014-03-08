@@ -1,3 +1,6 @@
+apply plugin: 'maven'
+apply plugin: 'maven-publish'
+apply plugin: 'signing'
 apply plugin: 'android-library'
 
 version '1.0.0'
@@ -22,6 +25,91 @@ android {
 }
 
 dependencies {
-    compile 'com.android.support:appcompat-v7:+'
     compile fileTree(dir: 'libs', include: ['*.jar'])
+}
+
+
+def generatePom() {
+    def pom = pom {
+        project {
+            name 'subtlerater'
+            groupId group
+            artifactId 'library'
+            version version
+            description 'Discreet AppRater for Android'
+            inceptionYear '2014'
+            url 'http://blog.sephiroth.it'
+
+            licenses {
+                license {
+                    name 'The Apache Software License, Version 2.0'
+                    url 'https://github.com/sephiroth74/SubtleRater/blob/master/LICENSE'
+                    distribution 'repo'
+                }
+            }
+
+            scm {
+                url "https://github.com/sephiroth74/SubtleRater"
+                connection "scm:git:git@github.com:sephiroth74/SubtleRater.git"
+                developerConnection "scm:git:git@github.com:sephiroth74/SubtleRater.git"
+            }
+
+            developers {
+                developer {
+                    id 'sephiroth74'
+                    name 'Alessandro Crugnola'
+                    email 'alessandro.crugnola@gmail.com'
+                    url 'http://blog.sephiroth.it'
+                    roles {
+                        role 'author'
+                        role 'developer'
+                    }
+                }
+            }
+        }
+    }
+}
+
+signing {
+    sign configurations.archives
+}
+
+uploadArchives {
+    if (project.hasProperty('sonatypeUsername') && project.hasProperty('sonatypePassword')) {
+        repositories {
+            mavenDeployer {
+                beforeDeployment {
+                    MavenDeployment deployment -> signing.signPom(deployment)
+                }
+                pom = generatePom()
+
+                repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+                    authentication(userName: sonatypeUsername, password: sonatypePassword)
+                }
+
+                snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots") {
+                    authentication(userName: sonatypeUsername, password: sonatypePassword)
+                }
+            }
+        }
+    }
+}
+
+task androidJavadocs(type: Javadoc) {
+    source = android.sourceSets.main.allJava
+}
+
+task androidJavadocsJar(type: Jar) {
+    classifier = 'javadoc'
+    from androidJavadocs.destinationDir
+}
+
+task androidSourcesJar(type: Jar) {
+    classifier = 'sources'
+    from android.sourceSets.main.allSource
+}
+
+artifacts {
+    archives androidSourcesJar
+    archives androidJavadocsJar
 }

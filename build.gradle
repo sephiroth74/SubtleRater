@@ -12,6 +12,15 @@ buildscript {
 allprojects {
     repositories {
         mavenCentral()
+        maven {
+            name 'snoatype-snapshot'
+            url uri("https://oss.sonatype.org/content/repositories/snapshots")
+        }
+
+        maven {
+            name 'snoatype-release'
+            url uri("https://oss.sonatype.org/service/local/staging/deploy/maven2")
+        }
     }
 }
 

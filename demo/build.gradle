@@ -1,4 +1,12 @@
+apply plugin: 'maven'
+apply plugin: 'maven-publish'
+apply plugin: 'signing'
 apply plugin: 'android'
+
+import org.gradle.api.internal.artifacts.publish.DefaultPublishArtifact
+
+version '1.0.0'
+group 'it.sephiroth.android.library.subtlerater'
 
 android {
     compileSdkVersion 19
@@ -8,7 +16,7 @@ android {
         minSdkVersion 8
         targetSdkVersion 19
         versionCode 1
-        versionName "1.0"
+        versionName version
     }
     buildTypes {
         release {
@@ -21,5 +29,88 @@ android {
 dependencies {
     compile 'com.android.support:appcompat-v7:+'
     compile fileTree(dir: 'libs', include: ['*.jar'])
+
     compile project(':library')
+
+    // you will use:
+    // compile 'it.sephiroth.android.library.subtlerater:library:+@aar'
+}
+
+signing {
+    sign configurations.archives
+}
+
+
+uploadArchives {
+    if (project.hasProperty('sonatypeUsername') && project.hasProperty('sonatypePassword')) {
+        repositories {
+            mavenDeployer {
+                beforeDeployment {
+                    MavenDeployment deployment -> signing.signPom(deployment)
+                }
+                pom = generatePom()
+
+                repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+                    authentication(userName: sonatypeUsername, password: sonatypePassword)
+                }
+
+                snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots") {
+                    authentication(userName: sonatypeUsername, password: sonatypePassword)
+                }
+            }
+        }
+    }
+}
+
+
+def generatePom() {
+    def pom = pom {
+        project {
+            name 'demo'
+            groupId group
+            artifactId 'demo'
+            version version
+            description 'Demo'
+            inceptionYear '2014'
+            url 'http://blog.sephiroth.it'
+
+            scm {
+                url "https://github.com/sephiroth74/SubtleRater"
+                connection "scm:git:git@github.com:sephiroth74/SubtleRater.git"
+                developerConnection "scm:git:git@github.com:sephiroth74/SubtleRater.git"
+            }
+
+            licenses {
+                license {
+                    name 'The Apache Software License, Version 2.0'
+                    url 'https://github.com/sephiroth74/SubtleRater/blob/master/LICENSE'
+                    distribution 'repo'
+                }
+            }
+
+            developers {
+                developer {
+                    id 'sephiroth74'
+                    name 'Alessandro Crugnola'
+                    email 'alessandro.crugnola@gmail.com'
+                    url 'http://blog.sephiroth.it'
+                    roles {
+                        role 'author'
+                        role 'developer'
+                    }
+                }
+            }
+        }
+    }
+}
+
+task androidSourcesJar(type: Jar) {
+    classifier = 'sources'
+    from android.sourceSets.main.allSource
+}
+
+
+artifacts {
+    archives androidSourcesJar
+    archives new DefaultPublishArtifact(project.name, "apk", "apk", null, new Date(), file("build/apk/demo-debug-unaligned.apk"))
 }
