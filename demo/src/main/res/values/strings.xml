@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+	<string name="app_name">SubtleRater</string>
+	<string name="show">show</string>
+	<string name="hide">hide</string>
+	<string name="force_show">force show</string>
+	<string name="reset_count">Reset Count</string>
+	<string name="reset_all">Reset All</string>
+	<string name="auto_hide_checkbox">Auto Hide (3000ms)</string>
+
+</resources>
